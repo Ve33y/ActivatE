@@ -1,36 +1,29 @@
 import React from 'react';
 import './SearchBar.css';
 
-const sortByOptions = {
-  'Best Match': 'best_match',
-  'Highest Rated': 'rating',
-  'Most Reviewed': 'review_count',
-};
-
 class SearchBar extends React.Component {
-  renderSortByOptions() {
-    return Object.keys(sortByOptions).map((sortByOption) => {
-      const sortByOptionValue = sortByOptions[sortByOption];
-      return <li key={sortByOptionValue}>{sortByOption}</li>;
-    });
+  constructor(props) {
+    super(props);
+    this.state = { value: '' };
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleSubmit(event) {
+    event.preventDefault();
+    this.props.onSubmit(this.state.value);
+  }
+
+  handleChange(event) {
+    this.setState({ value: event.target.value });
   }
 
   render() {
     return (
-      <div className="SearchBar">
-        <div className="SearchBar-sort-options">
-          <ul>
-            {this.renderSortByOptions()}
-          </ul>
-        </div>
-        <div className="SearchBar-fields">
-          <input placeholder="Search Activities" />
-          <input placeholder="Where?" />
-        </div>
-        <div className="SearchBar-submit">
-          <a>Ready 2 MovĒ</a>
-        </div>
-      </div>
+      <form className="SearchBar-submit" onSubmit={this.handleSubmit}>
+        <input id="venueType" onChange={this.handleChange} value={this.state.value} placeholder="WHAT'S NEAR ME" />
+        <input type="submit" value="Show me" />
+      </form>
     );
   }
 }

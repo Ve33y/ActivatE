@@ -1,38 +1,70 @@
 import React from 'react';
 import './App.css';
 
-import BusinessList from '../BusinessList/BusinessList';
+
 import SearchBar from '../SearchBar/SearchBar';
-
-const business = {
-  image_url: 'http://s3-media2.fl.yelpcdn.com/bphoto/MmgtASP3l_t4tPCL1iAsCg/o.jpg',
-  name: 'Four Barrel Coffee',
-  // this is probably accessed as res.body.location.city, etc
-  // removed category since it comes back as an array of more than one alias
-  address1: '375 Valencia St',
-  city: 'San Francisco',
-  state: 'CA',
-  zipCode: '10101',
-  rating: 4.5,
-  review_count: 90,
-};
-
-const businesses = [
-  business,
-  business,
-  business,
-  business,
-  business,
-  business,
-];
+import Venue from '../SearchBar/Venue';
 
 class App extends React.Component {
-  render() {
-    return (
-      <div className="App">
-        <h1>ĀctivatĒ Æ</h1>
-        <SearchBar />
+  constructor() {
+    super();
 
+    this.state = {
+      venues: [],
+    };
+  }
+
+  handleSubmit(query) {
+    this.getVenues(query);
+  }
+
+  componentDidMount() {
+    this.getVenues('Outdoors & Recreation');
+  }
+
+  getLocation(callback) {
+    navigator.geolocation.getCurrentPosition((location) => {
+      callback(`${location.coords.latitude},${location.coords.longitude}`);
+    });
+  }
+
+  getVenues(query) {
+    const setVenueState = this.setState.bind(this);
+
+    const venuesEndpoint = 'https://api.foursquare.com/v2/venues/explore?';
+
+    this.getLocation((latlong) => {
+      const params = {
+        client_id: '',
+        client_secret: '',
+        limit: 25,
+        query,
+        v: '20130619',
+        ll: latlong,
+      };
+
+      fetch(venuesEndpoint + new URLSearchParams(params), {
+        method: 'GET',
+      }).then((response) => response.json()).then((response) => {
+        setVenueState({ venues: response.response.groups[0].items });
+      });
+    });
+  }
+
+  render() {
+    const venueList = this.state.venues.map((item, i) => <Venue key={i} name={item.venue.name} />);
+
+    return (
+      <div>
+        <SearchBar onSubmit={(value) => this.handleSubmit(value)} />
+        <h4>
+“The true New Yorker secretly believes that people living anywhere else have to be, in some sense, kidding.”
+― John Updike
+
+        </h4>
+        <ul>
+          {venueList}
+        </ul>
       </div>
     );
   }
